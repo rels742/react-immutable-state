@@ -4,39 +4,58 @@ import "./App.css"
 
 function App() {
   const [workouts, setWorkouts] = useState(initialWorkouts)
+  const [showDoneOnly, setShowDoneOnly] = useState(false)
 
   const addNewWorkout = () => {
     const newWorkout = generateWorkout()
-    console.log("addNewWorkout:", newWorkout)
+    setWorkouts([...workouts, newWorkout])
   }
 
   const deleteWorkout = (workout) => {
-    console.log("deleteWorkout:", workout)
+    setWorkouts(workouts.filter(wo => wo !== workout))
   }
 
   const completeWorkout = (workout) => {
-    console.log("completeWorkout:", workout)
+    const updatedWorkouts = workouts.map(item => (item === workout) ? { ...item, done: !item.done } : item)
+    setWorkouts(updatedWorkouts)
+  }
+
+  const toggleDoneOnly = () => {
+    setShowDoneOnly(!showDoneOnly)
+  }
+
+  const showWorkouts = () => {
+    if (!showDoneOnly) return workouts
+    return workouts.filter(workout => workout.done)
+  }
+
+  const replace = (workout) => {
+    const updatedWorkouts = workouts.map(item => (item === workout) ? generateWorkout() : item)
+    setWorkouts(updatedWorkouts)
   }
 
   return (
     <div className="App">
       <h1>🏋️‍♀️Workout Generator</h1>
       <button onClick={addNewWorkout}>Add New Workout</button>
+      <label>Show done</label>
+      <input type="checkbox" onChange={toggleDoneOnly} />
       <ul>
-        {workouts.map((workout, index) => (
+        {showWorkouts().map((workout, index) => (
           <li key={index}>
             <p>
               {workout.sets}x sets of <strong>{workout.reps}x{workout.exercise}</strong> with {workout.rest} seconds rest
             </p>
-            {!workout.done && 
+            {!workout.done &&
               <button onClick={e=>completeWorkout(workout)}>Done</button>}
-            {workout.done && 
+            {workout.done &&
              <p>✅</p>}
             <button onClick={e=>deleteWorkout(workout)}>Delete</button>
+            <button onClick={e=>replace(workout)}>Replace</button>
           </li>
         ))}
       </ul>
-      
+
     </div>
   )
 }
